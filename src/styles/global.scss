@@ -1,0 +1,14 @@
+// global.scss
+
+@import './variables';
+@import './typography';
+@import './common';
+@import './_payevo';
+
+// Include your Tailwind setup
+@import 'tailwindcss/base';
+@import 'tailwindcss/components';
+@import 'tailwindcss/utilities';
+
+
+  

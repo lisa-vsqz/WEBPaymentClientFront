@@ -1,0 +1,117 @@
+
+
+.k-grid,
+.k-grid td,
+.k-grid th  {
+    color: rgba(0, 0, 0, .87);
+    background-color: #fff;
+    background-clip: padding-box;
+    font-size: 13px !important;
+}
+
+
+.k-widget {
+    border-style: none;
+}
+
+.k-filter-row>td, .k-filter-row>th, .k-grid, .k-grid td, .k-grid-content-locked, .k-grid-footer, .k-grid-footer-locked, .k-grid-footer-wrap, .k-grid-header, .k-grid-header-locked, .k-grid-header-wrap, .k-grouping-header, .k-grouping-header .k-group-indicator, .k-header {
+    border-color: rgba(0, 0, 0, .12);
+}
+
+.k-widget {
+    border-width: 1px;
+    box-sizing: border-box;
+    outline: 0;
+    font-size: 13px;
+    line-height: 5;
+    display: block;
+}
+
+
+
+/* Remove all borders from header cells, content cells, and footer */
+.custom-grid-styles .k-grid-header th,
+.custom-grid-styles .k-grid-content td,
+.custom-grid-styles .k-grid-footer td {
+    border: none; /* Removes borders from individual cells */
+}
+
+/* Remove outer borders of the grid */
+.custom-grid-styles .k-grid-header,
+.custom-grid-styles .k-grid-content,
+.custom-grid-styles .k-grid-footer {
+    border: none; /* Removes any outer borders */
+    box-shadow: none; /* Ensure no shadow appears as a border */
+}
+
+.custom-grid-styles .k-grid-header {
+    border-bottom: 1px solid #d3d3d3;
+}
+
+/* Apply a bottom border with padding on each side for all rows */
+.custom-grid-styles .k-grid-content tr::after {
+    content: "";
+    display: block;
+    width: calc(100% - 20px); /* Adjust width for padding */
+    margin: 0 auto;
+    border-bottom: 1px solid #d3d3d3; /* Light gray line */
+    position: absolute;
+    left: 10px; /* Padding from the left edge */
+    right: 10px; /* Padding from the right edge */
+    bottom: 0;
+}
+
+/* Ensure rows are positioned relative for the line to appear correctly */
+.custom-grid-styles .k-grid-header th,
+.custom-grid-styles .k-grid-content tr {
+    position: relative;
+}
+
+/* Remove any borders from individual cells */
+.custom-grid-styles .k-grid-header th,
+.custom-grid-styles .k-grid-content td {
+    border: none;
+}
+
+.k-grid-content .k-master-row {
+    font-size: 14px;
+    line-height: 3;
+}
+
+/* Increase specificity for header padding */
+.custom-grid-styles .k-grid-header th {
+    padding-top: 15px !important;
+    padding-bottom: 15px !important;
+    color: #165585; /* Fallback color */
+}
+
+.k-column-title {
+    font-family: 'Open Sans', sans-serif;
+    font-weight: 600;
+    font-size: 13px !important;
+}
+
+
+/* This class should target the Kendo button with higher specificity */
+.action-menu-button.k-button {
+    background: transparent !important;        /* Remove background color */
+    border: none !important;                   /* Remove border */
+    box-shadow: none !important;               /* Remove any shadow */
+    padding: 8px;                              /* Adjust padding to center icon */
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    border-radius: 100% !important;                         /* Ensures circular shape */
+    transition: background-color 0.3s ease;    /* Smooth transition on hover */
+}
+
+.action-menu-button.k-button:hover {
+    background-color: #f0f0f0 !important;      /* Light gray background on hover */
+    cursor: pointer;
+}
+
+.align-end {
+    display: flex;
+    justify-content: flex-end; /* Aligns content to the right */
+    padding-right: 10px;       /* Optional: Adjusts spacing */
+}
