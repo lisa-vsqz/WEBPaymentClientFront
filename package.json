@@ -9,6 +9,9 @@
     "lint": "next lint"
   },
   "dependencies": {
+    "@fortawesome/fontawesome-svg-core": "^6.7.1",
+    "@fortawesome/free-solid-svg-icons": "^6.7.1",
+    "@fortawesome/react-fontawesome": "^0.2.2",
     "@progress/kendo-data-query": "^1.7.0",
     "@progress/kendo-licensing": "^1.3.5",
     "@progress/kendo-react-all": "^8.5.0",

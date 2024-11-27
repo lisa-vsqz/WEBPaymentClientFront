@@ -35,7 +35,7 @@ const HeaderActionCell: React.FC<HeaderActionCellProps> = ({ onExcelExport, onPd
 
     return (
         <div ref={anchorRef} style={{ display: 'inline-block', position: 'relative' }} >
-            <Button icon="more-horizontal" onClick={toggleMenu} className="action-menu-button "/>
+            <Button icon="more-horizontal" onClick={toggleMenu} className="action-menu-button align-end"/>
             {anchorRef.current && (
                 <Popup anchor={anchorRef.current} show={showMenu} popupAlign={{ vertical: 'bottom', horizontal: 'right' }}>
                     <div ref={menuRef}>

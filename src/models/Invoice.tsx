@@ -1,36 +1,13 @@
-export class Invoice {
-    invoiceId!: number; // PK
-    companyId!: string; // varchar(14) FK
-    billPayeeId!: number; // FK
-    providerId!: string; // varchar(25) FK
-
-    subtotal!: number; // decimal
-    tax!: number; // decimal
-    discount!: number; // decimal
-    total!: number; // decimal
-    amountDue!: number; // decimal
-    amountPaid!: number; // decimal
-
-    dateCreated!: Date; // date
-    dateUpdated!: Date; // date
-
-    status!: string; // varchar(1)
-    currency!: string; // varchar(3)
-
-    extInvoiceID!: string; // varchar(36)
-    invoiceReference!: string; // varchar(10)
-    userNumber!: string; // varchar(21)
-
-    createdBy!: string; // varchar(14)
-    updatedBy!: string; // varchar(14)
-
-    extUserID!: string; // varchar(36)
-    memo?: string; // string, optional
-    note?: string; // string, optional
-
-    selected!: boolean; //for grid
-
-    constructor(data: Partial<Invoice> = {}) {
-        Object.assign(this, data);
-    }
+export interface Invoice {
+  InvoiceID: number; // Auto-incrementing primary key
+  ProviderID: number; // Foreign key
+  InvoiceNumber: string; // Required
+  DueDate: Date; // Required
+  TotalAmount: number; // Required
+  AmountPaid: number; // Default 0
+  AmountDue: number; // Calculated field (totalAmount - amountPaid)
+  PaymentStatus: string; // Default 'Unpaid'
+  CreatedAt: Date; // Default to current datetime
+  UpdatedAt: Date; // Default to current datetime
+  selected: boolean; // Default false
 }
