@@ -9,6 +9,7 @@ import {
   DateCell,
   FullNameCell,
 } from "../../../components/GridCells";
+import { DateRangePicker } from "@progress/kendo-react-dateinputs";
 
 const BACKEND_URL = process.env.NEXT_PUBLIC_BACKEND_URL;
 
@@ -31,6 +32,12 @@ interface Provider {
   ProviderName: string;
 }
 
+interface Invoice {
+  ProviderID: number;
+  DueDate: string;
+  AmountDue: number;
+}
+
 const Report: React.FC = () => {
   const { data: session, status } = useSession();
   const router = useRouter();
@@ -42,6 +49,18 @@ const Report: React.FC = () => {
     ProviderToAvoid[]
   >([]);
   const [providers, setProviders] = React.useState<Provider[]>([]);
+
+  const [invoices, setInvoices] = React.useState<Invoice[]>([]);
+  const [dateRange, setDateRange] = React.useState<{
+    start: Date | null;
+    end: Date | null;
+  }>({
+    start: new Date(new Date().getFullYear(), new Date().getMonth(), 1),
+    end: new Date(),
+  });
+  const [filteredProviders, setFilteredProviders] = React.useState<
+    { providerName: string; totalOwed: number; invoiceCount: number }[]
+  >([]);
 
   // Fetch all required data
   React.useEffect(() => {
@@ -58,6 +77,13 @@ const Report: React.FC = () => {
         .then((res) => res.json())
         .then(setLiquidityStatus)
         .catch((err) => console.error("Error fetching liquidity status:", err));
+
+      fetch(`${BACKEND_URL}/api/invoices`, {
+        headers: { Authorization: `Bearer ${session?.accessToken}` },
+      })
+        .then((res) => res.json())
+        .then(setInvoices)
+        .catch((err) => console.error("Error fetching invoices:", err));
 
       // Fetch Suggested Payments
       fetch(`${BACKEND_URL}/api/payments/suggested-payments`, {
@@ -104,6 +130,74 @@ const Report: React.FC = () => {
       };
     });
   }, [providersToAvoid, providers]);
+
+  React.useEffect(() => {
+    if (!dateRange.start || !dateRange.end) return;
+
+    const startDate = new Date(dateRange.start);
+    const endDate = new Date(dateRange.end);
+
+    const filteredInvoices = invoices.filter((invoice) => {
+      const dueDate = new Date(invoice.DueDate);
+      return (
+        dueDate >= startDate && dueDate <= endDate && invoice.AmountDue > 0
+      );
+    });
+
+    const providerMap = new Map<
+      number,
+      {
+        totalOwed: number;
+        invoiceCount: number;
+        oldestInvoiceDate: string | null;
+      }
+    >();
+
+    filteredInvoices.forEach((invoice) => {
+      if (!providerMap.has(invoice.ProviderID)) {
+        providerMap.set(invoice.ProviderID, {
+          totalOwed: 0,
+          invoiceCount: 0,
+          oldestInvoiceDate: null,
+        });
+      }
+      const providerData = providerMap.get(invoice.ProviderID);
+      if (providerData) {
+        providerData.totalOwed += invoice.AmountDue;
+        providerData.invoiceCount += 1;
+        providerData.oldestInvoiceDate =
+          !providerData.oldestInvoiceDate ||
+          new Date(providerData.oldestInvoiceDate) > new Date(invoice.DueDate)
+            ? invoice.DueDate
+            : providerData.oldestInvoiceDate;
+      }
+    });
+
+    const result = Array.from(providerMap.entries())
+      .map(([providerID, data]) => {
+        const provider = providers.find((p) => p.ProviderID === providerID);
+        return {
+          providerName: provider ? provider.ProviderName : "Unknown Provider",
+          totalOwed: data.totalOwed,
+          invoiceCount: data.invoiceCount,
+          oldestInvoiceDate: data.oldestInvoiceDate,
+        };
+      })
+      .sort((a, b) => {
+        // First order by the oldest due date
+        const oldestDueDateA = new Date(a.oldestInvoiceDate || "").getTime();
+        const oldestDueDateB = new Date(b.oldestInvoiceDate || "").getTime();
+
+        if (oldestDueDateA !== oldestDueDateB) {
+          return oldestDueDateA - oldestDueDateB;
+        }
+
+        // Then order by total owed
+        return b.totalOwed - a.totalOwed;
+      });
+
+    setFilteredProviders(result);
+  }, [dateRange, invoices, providers]);
 
   if (status === "loading") {
     return <div>Loading...</div>;
@@ -219,6 +313,65 @@ const Report: React.FC = () => {
             />
           </Grid>
         </div>
+      </div>
+      {/* Date Range Picker */}
+      <div className="mb-6">
+        <h2 className="text-xl font-semibold mb-4">Select Date Range</h2>
+        <DateRangePicker
+          value={dateRange}
+          onChange={(e) => setDateRange(e.value)}
+          startDateInputSettings={{ label: "Start Date" }}
+          endDateInputSettings={{ label: "End Date" }}
+        />
+      </div>
+
+      {/* Providers with Invoices in Date Range */}
+      <div>
+        <h2 className="text-xl font-semibold mb-4">
+          Providers with Invoices in Selected Date Range
+        </h2>
+        {filteredProviders.length > 0 ? (
+          <Grid
+            data={filteredProviders}
+            onDataChange={() => {}}
+            allColumnFilter=""
+            stateHidden={true}
+          >
+            <Column
+              field="providerName"
+              title="Provider Name"
+              columnMenu={ColumnMenu}
+              width={250}
+            />
+            <Column
+              field="totalOwed"
+              title="Total Owed"
+              columnMenu={ColumnMenu}
+              cell={CurrencyCell}
+              width={200}
+            />
+            <Column
+              field="invoiceCount"
+              title="Number of Invoices"
+              columnMenu={ColumnMenu}
+              width={150}
+            />
+            <Column
+              field="oldestInvoiceDate"
+              title="Oldest Invoice Date"
+              columnMenu={ColumnMenu}
+              cell={(props) => (
+                <DateCell
+                  {...props}
+                  dataItem={{ DueDate: props.dataItem.oldestInvoiceDate }}
+                />
+              )}
+              width={200}
+            />
+          </Grid>
+        ) : (
+          <p>No providers found for the selected date range.</p>
+        )}
       </div>
     </div>
   );
